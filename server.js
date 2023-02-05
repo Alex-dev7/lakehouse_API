@@ -1,14 +1,30 @@
 require('dotenv').config()
 const express = require('express')
-// const mongoose = require('mongoose')
+const mongoose = require('mongoose')
 const morgan = require('morgan')
 const cors = require('cors')
 const cloudinary = require('cloudinary')
-const uploadImages = require('./uploadImages')
+
 
 const app = express()
 
 const PORT = process.env.PORT || 3000
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  })
+
+async function getImagesFromCloudinary(collectionName) {
+    try {
+      const result = await cloudinary.api.resources({ type: 'upload', max_results: 500, prefix: collectionName + '/' });
+    //   console.log(result.resources)
+      return result.resources;
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
 // midleware
 app.use(cors())
@@ -19,15 +35,20 @@ app.use(morgan("dev"))
 
 
 // routes
+app.get('/', (req, res) => {
+  request.send("Welcome to Backend")
+})
+
+
 app.get('/gallery',async (req, res) => {
     try {
-        const images = await uploadImages('Home/m')
-        console.log(images)
+        const images = await getImagesFromCloudinary('Home/m')
+        console.log("here", images)
         res.json(images)
         
       } catch (error) {
         console.error(error)
-        res.status(500).send(error.message)
+        // res.status(500).send(error.message)
       }
 })
 
