@@ -36,11 +36,11 @@ app.use(morgan("dev"))
 
 // routes
 app.get('/', (req, res) => {
-  request.send("Welcome to Backend")
+  res.send("Welcome to Backend")
 })
 
 
-app.get('/gallery',async (req, res) => {
+app.get('/gallery', async (req, res) => {
     try {
         const images = await getImagesFromCloudinary('Home/m')
         console.log("here", images)
