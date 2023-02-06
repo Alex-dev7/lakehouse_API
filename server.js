@@ -41,16 +41,12 @@ app.get('/', (req, res) => {
 
 
 app.get('/gallery', async (req, res) => {
-    try {
+   
         const images = await getImagesFromCloudinary('Home/m')
-        // console.log(images)
-        res.send(images.map(image => image.url))
+        console.log(images)
+        res.send(images)
         
-      } catch (error) {
-        console.error(error)
-        // res.status(500).send(error.message)
-      }
-})
+    })
 
 app.listen(PORT, () => {
     console.log(`Listening on ${PORT}`)
