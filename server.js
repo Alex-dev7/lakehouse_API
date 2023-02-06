@@ -2,7 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const cloudinary = require('cloudinary')
+const cloudinary = require('cloudinary').v2
 
 
 const app = express()
@@ -16,15 +16,21 @@ cloudinary.config({
     secure: true
   })
 
-async function getImagesFromCloudinary(collectionName) {
-    try {
-      const result = await cloudinary.api.resources({ type: 'upload', max_results: 500, prefix: collectionName + '/' });
-      console.log(result.resources)
-      return result.resources;
-    } catch (error) {
-      console.error(error);
-    }
-  }
+// async function getImagesFromCloudinary(collectionName) {
+//     try {
+//       const result = await cloudinary.v2.api.resources({ type: 'upload', max_results: 500, prefix: collectionName + '/' });
+//     //   console.log(result.resources)
+//       return result.resources;
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   }
+
+// const images = await getImagesFromCloudinary('Home/m')
+// console.log("hi", images.length)
+// res.json(images)
+
+
 
 // midleware
 app.use(cors())
@@ -41,12 +47,14 @@ app.get('/', (req, res) => {
 
 
 app.get('/gallery', async (req, res) => {
-   
-        const images = await getImagesFromCloudinary('Home/m')
-        console.log(images)
-        res.send(images)
-        
-    })
+    
+    const {resources} = await cloudinary.search.expression('folder:m')
+    .sort_by('public_id', 'desc')
+    .max_results(30)
+    .execute()
+    const publicIds = resources.map(file => file.public_id)
+    res.send(publicIds)
+})
 
 app.listen(PORT, () => {
     console.log(`Listening on ${PORT}`)
