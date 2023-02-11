@@ -48,7 +48,7 @@ app.get('/gallery', async (req, res) => {
                     name: file.filename
                 } 
             } )
-            res.send(images)
+            res.json(images)
             // console.log(files)
         } )
     }catch(error){
