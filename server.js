@@ -9,27 +9,14 @@ const app = express()
 
 const PORT = process.env.PORT || 3000
 
+
+
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true
+    secure: true,
   })
-
-// async function getImagesFromCloudinary(collectionName) {
-//     try {
-//       const result = await cloudinary.v2.api.resources({ type: 'upload', max_results: 500, prefix: collectionName + '/' });
-//     //   console.log(result.resources)
-//       return result.resources;
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   }
-
-// const images = await getImagesFromCloudinary('Home/m')
-// console.log("hi", images.length)
-// res.json(images)
-
 
 
 // midleware
@@ -48,12 +35,26 @@ app.get('/', (req, res) => {
 
 app.get('/gallery', async (req, res) => {
     
-    const {resources} = await cloudinary.search.expression('folder:m')
-    .sort_by('public_id', 'desc')
-    .max_results(30)
-    .execute()
-    const publicIds = resources.map(file => file.public_id)
-    res.send(publicIds)
+    try {
+         await cloudinary.search.expression('folder:m')
+        
+        .sort_by('public_id', 'desc')
+        .max_results(30)
+        .execute()
+        .then( files => {
+            const images = files.resources.map(file => {
+                return {
+                    url: file.secure_url,
+                    name: file.filename
+                } 
+            } )
+            res.send(images)
+            // console.log(files)
+        } )
+    }catch(error){
+        console.error(error)
+    }
+
 })
 
 app.listen(PORT, () => {
